@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<head>
+	<link rel='stylesheet' href='/Users/asaf/Downloads/styles.css'>
+	<script src='/Users/asaf/Downloads/dataset.js' type='text/javascript'></script>
+	<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+<body>	
+<div id='root'></div>
+<script type='text/javascript'>
+
+function mapper(flatJSON) {
+	for(var i = 0; i < flatJSON.length; i++){
+		if(flatJSON[i].parentID == undefined || flatJSON[i].parentID == 0){
+			flatJSON[i].parentID == null
+		}
+	}
+	var dictionary = {};
+	for (var i = 0; i < flatJSON.length; i++) {
+		dictionary[flatJSON[i].ID] = flatJSON[i];
+	}
+	for (var i = 0; i < flatJSON.length; i++) {
+		if(flatJSON[i].parentID) {
+			var parent = dictionary[flatJSON[i].parentID]
+			if(parent) {
+				if(!parent.children) {
+					parent.children = []
+				}
+				parent.children.push(flatJSON[i])
+			}
+		}
+	}
+
+	var mappedArray = [];
+
+	for(key in dictionary) {
+		if(dictionary[key].parentID == null) {
+			mappedArray.push(dictionary[key])
+		}
+	}
+
+	return mappedArray
+}
+</script>
+
+<script type='text/babel'>
+
+
+
+class Comment extends React.Component{
+    constructor(props){
+        super(props);
+        this.state = {visibility:'expanded'}
+    }
+    handleClick(){
+        console.log('item was clicked')
+        //console.log(this.props.comment)
+        //console.log(this.state.visibility)
+        this.setState(function(prevState, props){
+            return {visibility: (prevState.visibility == 'expanded' ? 'closed' : 'expanded')}
+        })
+    }
+    render() {
+        //console.log(this.state)
+        var comment = this.props.comment
+        return <div className={this.state.visibility + ' Comment'} >
+            <table onClick={() => this.handleClick(comment)}>
+            <tbody>
+                <tr>    
+                    <td dangerouslySetInnerHTML={{__html:comment.Phone}} />
+                    <td dangerouslySetInnerHTML={{__html:comment.ID}} />
+                    <td dangerouslySetInnerHTML={{__html:comment.City}} />
+                    <td dangerouslySetInnerHTML={{__html:comment.Name}} />
+                </tr>
+            </tbody>
+            </table>
+        {comment.children != undefined && comment.children.length > 0 && comment.children.map(function(child) {
+            return <Comment key={child.ID} comment={child}/>
+        })}
+        </div>
+    }
+}
+  
+
+
+class App extends React.Component {
+    constructor(props) {
+        super(props)
+        this.concat = this.concat.bind(this)
+    }
+    render() {
+        return <div className='mainDiv' onClick={this.concat}>
+            {this.props.comments.map(function(comment, i, comments) {
+            return <Comment comment={comment} comments={comments}/>
+            })}
+        </div>
+    }
+}
+
+var comments = mapper(dataset)
+
+var hello = ['some stuff', 'is actually', 'defined here']
+
+ReactDOM.render(<App comments={comments}/>, document.getElementById('root'))
+
+// var comments = [  
+//     {  
+//       "id":1,
+//       "comment_text":"1234",
+//       "author":"adsfasdasdsad",
+//       "post_id":1,
+//       "ancestry":null,
+//       "archived":false,
+//       "created_at":"2014-10-16T23:16:44.173Z",
+//       "updated_at":"2014-10-16T23:16:44.173Z",
+//       "is_moderated":false,
+//       "avatar_url":null,
+//       "slug":null,
+//       "blog_id":2,
+//       "children":[  
+
+//       ]
+//     },
+//     {  
+//       "id":2,
+//       "comment_text":"13534",
+//       "author":"asdsdasdad",
+//       "post_id":1,
+//       "ancestry":null,
+//       "archived":false,
+//       "created_at":"2014-10-16T23:17:02.270Z",
+//       "updated_at":"2014-10-16T23:17:02.270Z",
+//       "is_moderated":false,
+//       "avatar_url":null,
+//       "slug":null,
+//       "blog_id":2,
+//       "children":[  
+//         {  
+//           "id":3,
+//           "comment_text":"312424",
+//           "author":"sdfdsfdsfdsfds",
+//           "post_id":1,
+//           "ancestry":"2",
+//           "archived":false,
+//           "created_at":"2014-11-28T17:39:47.059Z",
+//           "updated_at":"2014-11-28T17:39:47.059Z",
+//           "is_moderated":false,
+//           "avatar_url":null,
+//           "slug":null,
+//           "blog_id":2,
+//           "children":[  
+//             {  
+//               "id":4,
+//               "comment_text":"1234",
+//               "author":"sdfsdfdsfsdfdsfds",
+//               "post_id":1,
+//               "ancestry":"2/3",
+//               "archived":false,
+//               "created_at":"2014-11-28T17:39:53.049Z",
+//               "updated_at":"2014-11-28T17:39:53.049Z",
+//               "is_moderated":false,
+//               "avatar_url":null,
+//               "slug":null,
+//               "blog_id":2,
+//               "children":[  
+//                 {  
+//                   "id":5,
+//                   "comment_text":"1234",
+//                   "author":"sdfsdfdsfdsfdsf",
+//                   "post_id":1,
+//                   "ancestry":"2/3/4",
+//                   "archived":false,
+//                   "created_at":"2014-11-28T17:40:02.032Z",
+//                   "updated_at":"2014-11-28T17:40:02.032Z",
+//                   "is_moderated":false,
+//                   "avatar_url":null,
+//                   "slug":null,
+//                   "blog_id":2,
+//                   "children":[  
+
+//                   ]
+//                 }
+//               ]
+//             }
+//           ]
+//         }
+//       ]
+//     }
+//   ]
+
+
+</script>
+
+</body>
+</html>

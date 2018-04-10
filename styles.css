@@ -1,0 +1,19 @@
+
+
+.expanded > .expanded {
+    margin-left: 3em
+}
+.closed > .expanded {
+    color: #fff;
+}
+.expanded > .closed {
+    margin-left: 3em
+}
+
+.closed > div {
+    max-height: 0px;
+}
+
+table { 
+    margin-bottom: 0px;
+}
